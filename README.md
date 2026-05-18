@@ -1,3 +1,7 @@
+
+<img width="567" height="645" alt="image" src="https://github.com/user-attachments/assets/d1790119-8fd2-4fcc-bc18-95aef5bc7351" />
+
+
 # Service-Desk-Chatbot
 Helpdesk Chatbot
 
