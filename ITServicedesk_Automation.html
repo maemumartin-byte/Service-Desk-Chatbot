@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Service Desk Assistant Pro</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+color:white;
+padding:20px;
+}
+
+.chat-container{
+width:450px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(15px);
+border-radius:20px;
+padding:15px;
+box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+h2{
+text-align:center;
+margin-bottom:10px;
+background:linear-gradient(90deg,#00f2fe,#4facfe);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+#chat{
+height:300px;
+overflow-y:auto;
+background:rgba(0,0,0,0.25);
+padding:10px;
+border-radius:12px;
+margin-bottom:10px;
+}
+
+.message{
+padding:10px;
+margin:8px 0;
+border-radius:12px;
+font-size:13px;
+}
+
+.bot{background:#1e90ff33;}
+.user{background:#00ff8833;text-align:right;}
+
+.options button{
+width:100%;
+padding:10px;
+margin:5px 0;
+border:none;
+border-radius:10px;
+background:#00c6ff;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+iframe{
+width:100%;
+border-radius:12px;
+margin-top:10px;
+}
+
+/* TOAST */
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c6ff;
+padding:10px;
+border-radius:10px;
+display:none;
+font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="chat-container">
+
+<h2>IT Service Desk Pro</h2>
+
+<div id="chat"></div>
+
+<div class="options">
+
+<button onclick="selectIssue('PC is slow')">🖥️ PC is slow</button>
+<button onclick="selectIssue('Audio issue')">🎧 Audio issue</button>
+<button onclick="selectIssue('Network issue')">🌐 Network issue</button>
+<button onclick="searchTicket()">🔍 Search Ticket</button>
+
+</div>
+
+</div>
+
+<script>
+
+const chat=document.getElementById("chat");
+let tickets=JSON.parse(localStorage.getItem("tickets"))||[];
+
+let currentIssue="";
+
+/* TECHNICIANS (YOUR ORIGINAL IDEA KEPT) */
+const technicians=[
+"Martin M Nekhubvi",
+"Lerato Thesele",
+"Siyabonga Mkhonza",
+"Jeffery Banda"
+];
+
+/* START */
+addBot("👋 Welcome to IT Service Desk Pro");
+
+/* ================= ISSUE ================= */
+function selectIssue(issue){
+
+currentIssue=issue;
+addUser(issue);
+
+addBot(`
+Select an option:<br><br>
+<button onclick="connectAgent()">📞 Speak to Agent</button>
+<button onclick="startTroubleshooting()">🤖 Troubleshooting</button>
+`);
+}
+
+/* ================= AGENT FLOW (RESTORED) ================= */
+function connectAgent(){
+
+addUser("Speak to Agent");
+
+let html="👨‍💻 Choose a Technician:<br><br>";
+
+technicians.forEach(t=>{
+html+=`
+<button onclick="assignTech('${t}')">
+${t}
+</button>
+`;
+});
+
+addBot(html);
+}
+
+/* ================= ASSIGN TECHNICIAN ================= */
+function assignTech(tech){
+
+showToast("Assigning technician...");
+
+setTimeout(()=>{
+
+let ticket={
+id:"IT-"+Date.now(),
+issue:currentIssue,
+tech:tech,
+status:"Open",
+created:Date.now()
+};
+
+tickets.push(ticket);
+localStorage.setItem("tickets",JSON.stringify(tickets));
+
+addBot(`
+✅ Assigned Successfully<br><br>
+👨‍💻 ${tech}<br>
+🎫 Ticket: <b>${ticket.id}</b><br>
+🟢 Status: Open
+`);
+
+},1200);
+}
+
+/* ================= TROUBLESHOOTING (WITH VIDEOS RESTORED) ================= */
+function startTroubleshooting(){
+
+addUser("Troubleshooting");
+
+if(currentIssue==="PC is slow"){
+
+addBot(`
+🖥️ Slow PC Fix Steps:<br><br>
+1. Restart PC<br>
+2. Open Task Manager (CTRL + SHIFT + ESC)<br>
+3. End high CPU apps<br>
+4. Disable startup apps<br><br>
+
+🎥 Video Guide:<br>
+<iframe src="https://www.youtube.com/embed/j2RW8Rt1nP4?autoplay=1&mute=1" allowfullscreen></iframe>
+`);
+
+}
+else if(currentIssue==="Audio issue"){
+
+addBot(`
+🎧 Audio Fix Steps:<br><br>
+1. Check headset connection<br>
+2. Open Sound Settings<br>
+3. Select correct output device<br><br>
+
+🎥 Video Guide:<br>
+<iframe src="https://www.youtube.com/embed/mnwctsPeOxw?autoplay=1&mute=1" allowfullscreen></iframe>
+`);
+
+}
+else if(currentIssue==="Network issue"){
+
+addBot(`
+🌐 Network Fix Steps:<br><br>
+1. Restart router<br>
+2. Reconnect WiFi<br>
+3. Run troubleshooter<br>
+`);
+
+}
+else{
+
+addBot("⚠️ No guide available yet.");
+}
+
+}
+
+/* ================= SEARCH TICKET ================= */
+function searchTicket(){
+
+let id=prompt("Enter Ticket ID:");
+
+let found=tickets.find(t=>t.id===id);
+
+if(!found){
+addBot("❌ Ticket not found");
+return;
+}
+
+addBot(`
+🔎 Ticket Found<br><br>
+ID: ${found.id}<br>
+Issue: ${found.issue}<br>
+Tech: ${found.tech}<br>
+Status: ${found.status}<br>
+Created: ${new Date(found.created).toLocaleString()}
+`);
+
+}
+
+/* ================= TOAST ================= */
+function showToast(msg){
+let toast=document.getElementById("toast");
+toast.innerText=msg;
+toast.style.display="block";
+
+setTimeout(()=>{
+toast.style.display="none";
+},2000);
+}
+
+/* ================= CHAT ================= */
+function addBot(msg){
+chat.innerHTML+=`<div class="message bot">🤖 ${msg}</div>`;
+chat.scrollTop=chat.scrollHeight;
+}
+
+function addUser(msg){
+chat.innerHTML+=`<div class="message user">👤 ${msg}</div>`;
+chat.scrollTop=chat.scrollHeight;
+}
+
+</script>
+
+</body>
+</html>
